@@ -1,0 +1,294 @@
+package TempoDescanso;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.util.Date;
+import java.util.TimerTask;
+import javax.sql.rowset.CachedRowSet;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ *
+ * @author andres
+ */
+public class JFramePrincipal extends javax.swing.JFrame {
+    
+    DefaultTableModel tableModel;
+    
+    
+        
+    /**
+     * Creates new form JFramePrincipal
+     */
+    public JFramePrincipal() {
+        initComponents();    
+        
+        this.setTitle("En Descanso");
+        
+        
+        java.util.Timer timer = new java.util.Timer();
+        TimerTask tarea = new TimerTask() {
+            @Override
+            public void run() {  
+                _LlenarJTableDesdeDataBase();
+                
+            }
+        };
+        timer.schedule(tarea, 500, 20000);
+        
+    
+ 
+    }
+    
+
+    public void _LlenarJTableDesdeDataBase(){
+      
+        tableModel = new DefaultTableModel(null,getColumnas());
+        jTable1.setDefaultRenderer (Object.class, new MiRender());
+        setFilas();
+ 
+        jTable1.setModel(tableModel);
+        jScrollPane2.add(jTable1);
+        this.add(jScrollPane2);
+        
+ 
+        jScrollPane2.setViewportView(jTable1);
+ 
+        
+    } 
+    
+    //Encabezados de la tabla
+    private String[] getColumnas(){
+          String columna[] = new String[]{"Id","Nombre","Apellido", "Comienza", "Tiempo"};
+          return columna;
+    }
+    
+
+
+    private void setFilas(){
+        
+        Conexion cnndb = new Conexion();       
+
+        Date inicio = new Date();
+        inicio.setHours(0);
+        inicio.setMinutes(0);
+        Date fin = new Date();
+        fin.setHours(23);
+        fin.setMinutes(59);
+
+        CachedRowSet crs = cnndb.Function("select employee_id, e.name, e.surname, DATE_FORMAT(markTime, \"%H:%i\" ), TIMESTAMPDIFF(MINUTE, markTime, now()) as minutos from marks, employees e where e.id = employee_id and (clock_id = 4 or clock_id = 3) and markTime >=" + '"'+ManejadorDate.deDateToString(inicio)+ '"' + " and markTime <=" + '"'+ManejadorDate.deDateToString(fin)+ '"' + " group by employee_id having count(*) = 1 order by minutos DESC");
+ 
+        Object datos[]=new Object[5]; //Numero de columnas de la tabla
+        
+       
+   
+ 
+        try {     
+            
+            while (crs.next()) {
+                
+                for (int i = 0; i < 5; i++) {
+                        datos[i] = crs.getObject(i + 1);   
+                } 
+                tableModel.addRow(datos);
+                
+               
+            } 
+            crs.close();
+            
+        } catch (Exception e) {
+        }
+    }
+    
+    
+    
+    public void _LlenarJTableBuscar(int id){
+
+        //Llenamos el modelo
+        tableModel = new DefaultTableModel(null,getColumnas());
+ 
+        setFilasBuscar(id);
+ 
+        jTable1.setModel(tableModel);
+        jScrollPane2.add(jTable1);
+        this.add(jScrollPane2);
+         
+        jScrollPane2.setViewportView(jTable1);
+ 
+        
+    }
+    
+    private void setFilasBuscar(int id){
+        
+        Conexion cnndb = new Conexion();
+        Date inicio = new Date();
+        inicio.setHours(0);
+        inicio.setMinutes(0);
+        Date fin = new Date();
+        fin.setHours(23);
+        fin.setMinutes(59);
+        
+        CachedRowSet crs = cnndb.Function("select employee_id, e.name, e.surname, markTime, TIMESTAMPDIFF(MINUTE, markTime, now()) as minutos from marks, employees e where employee_id = "+ id + " and e.id = employee_id and (clock_id = 4 or clock_id = 3) and markTime >=" + '"'+ManejadorDate.deDateToString(inicio)+ '"' + " and markTime <=" + '"'+ManejadorDate.deDateToString(fin)+ '"' + " group by employee_id having count(*) = 1");
+ 
+        
+            
+            try {
+                if(crs.next()){
+                    Object datos[]=new Object[5]; //Numero de columnas de la tabla           
+    
+                        for (int i = 0; i < 5; i++) {
+                                datos[i] = crs.getObject(i + 1);
+                             
+                        }
+                        tableModel.addRow(datos);
+                    
+
+                    crs.close();
+                }
+                else{
+                    JOptionPane.showMessageDialog(null, "No se encuentra en el listado el empleado " + id);
+                     _LlenarJTableDesdeDataBase();
+                }
+            } catch (Exception e) {
+                
+                }
+
+    }
+    
+   
+    
+    
+
+  
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jTextField1 = new javax.swing.JTextField();
+        jButton3 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(null);
+
+        jTable1.setFont(new java.awt.Font("Ubuntu", 0, 14)); // NOI18N
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(jTable1);
+
+        getContentPane().add(jScrollPane2);
+        jScrollPane2.setBounds(70, 60, 670, 470);
+
+        jTextField1.setToolTipText("");
+        getContentPane().add(jTextField1);
+        jTextField1.setBounds(240, 20, 110, 27);
+
+        jButton3.setText("Buscar");
+        jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jButton3MousePressed(evt);
+            }
+        });
+        getContentPane().add(jButton3);
+        jButton3.setBounds(70, 20, 110, 29);
+
+        jLabel1.setText("ID:");
+        getContentPane().add(jLabel1);
+        jLabel1.setBounds(210, 30, 30, 17);
+        setJMenuBar(jMenuBar1);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton3MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MousePressed
+        // TODO add your handling code here:
+        String s = jTextField1.getText();
+        if(!s.equals("")){
+            int id = Integer.parseInt(jTextField1.getText());        
+            _LlenarJTableBuscar(id);
+            jTextField1.setText("");
+             
+        }
+        
+    }//GEN-LAST:event_jButton3MousePressed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(JFramePrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(JFramePrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(JFramePrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(JFramePrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+         
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {               
+                new JFramePrincipal().setVisible(true);
+               
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton3;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTextField jTextField1;
+    // End of variables declaration//GEN-END:variables
+}
